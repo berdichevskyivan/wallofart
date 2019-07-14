@@ -200,7 +200,7 @@ class App extends Component {
     let buttons = this.state.showParagraphs ?
                   <div className="myFavoriteButton"><Button
                           onClick={this.downloadWallAsImg}>Download the Wall of Art</Button>
-                        <Button onClick={this.showHistoryModal}>Wall of Art History</Button></div> :
+                        <Button onClick={this.showHistoryModal} disabled={this.state.wallOfArtHistory.length < 1}>Wall of Art History</Button></div> :
                      null;
 
     let grid = this.state.allCanvasesLoaded ?
