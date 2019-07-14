@@ -1,0 +1,38 @@
+{
+  "name": "wallofart",
+  "version": "3.0.0",
+  "description": "How to use create-react-app with a custom Node API on Heroku",
+  "engines": {
+    "node": "10.x"
+  },
+  "scripts": {
+    "start": "node server",
+    "build": "cd react-ui/ && npm install && npm run build"
+  },
+  "cacheDirectories": [
+    "node_modules",
+    "react-ui/node_modules"
+  ],
+  "dependencies": {
+    "express": "^4.16.4",
+    "pg": "^7.11.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mars/heroku-cra-node.git"
+  },
+  "keywords": [
+    "node",
+    "heroku",
+    "create-react-app",
+    "react"
+  ],
+  "license": "MIT",
+  "devDependencies": {},
+  "bugs": {
+    "url": "https://github.com/mars/heroku-cra-node/issues"
+  },
+  "homepage": "https://github.com/mars/heroku-cra-node#readme",
+  "main": "index.js",
+  "author": "Ivan Berdichevsky"
+}

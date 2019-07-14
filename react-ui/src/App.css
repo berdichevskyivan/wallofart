@@ -1,0 +1,70 @@
+@import url('https://fonts.googleapis.com/css?family=Kalam&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Trade+Winds&display=swap');
+
+.App p {
+  font-size: 40px;
+  text-align: center;
+  margin: 0;
+}
+
+#wallTitle {
+  font-family: 'Trade Winds', sans-serif;
+  font-size: 80px;
+  height: 100px;
+  color: black;
+}
+
+.App .wallOfArt {
+  width: 1000px;
+  height: 1000px;
+  margin: 0 auto;
+  margin-top: 20px;
+}
+
+.wallWrapper {
+  width: 1050px;
+  height: 1050px;
+  margin: 0 auto;
+  margin-bottom: 25px;
+  border: 2px solid black;
+  border-radius: 0px;
+  margin-top: 10px;
+  background-color: white;
+  box-shadow: 8px 8px #dee2e6;
+}
+
+.grid-container {
+  text-align: center;
+}
+
+.grid-row {
+  display:flex;
+  width: 1000px !important;
+  height: 100px !important;
+}
+
+.grid-item, .grid-item-disabled {
+  width: 100px !important;
+  height: 100px !important;
+  border: none;
+  box-sizing: border-box;
+}
+
+.grid-item:hover{
+  background-color: #b3d7ff;
+}
+
+.drawing-from-user {
+  height: 100%;
+  width: 100%;
+}
+
+.myFavoriteButton {
+  display: flex;
+  justify-content: center;
+  padding: 10px;
+}
+
+.myFavoriteButton button {
+  margin-right: 10px;
+}

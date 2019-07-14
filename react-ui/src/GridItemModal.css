@@ -1,0 +1,13 @@
+.modal-body {
+  padding: 0px;
+  width: 100%;
+  border: none;
+}
+
+.modal-content {
+  border: none;
+}
+
+.alert-success, .alert-danger {
+  margin-bottom: 0px !important;
+}
