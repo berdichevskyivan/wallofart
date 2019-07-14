@@ -48,7 +48,7 @@ class App extends Component {
                .then(function(dataUrl){
                  console.log(dataUrl);
                  let wall_of_art_version = wallOfArtVersion;
-                 axios.post('localhost:5000/saveWallOfArt',{ wall_of_art_version:wall_of_art_version, base64img:dataUrl })
+                 axios.post('http://157.230.134.30:5000/saveWallOfArt',{ wall_of_art_version:wall_of_art_version, base64img:dataUrl })
                       .then(res=>{
                         console.log(res.data);
                         if(res.data.status==='OK'){

@@ -37,7 +37,7 @@ if (!isDev && cluster.isMaster) {
 
   //Remember to now Allow everyone (*) , just the React instance
   app.use(function(req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Origin", "http://157.230.134.30");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
   });
