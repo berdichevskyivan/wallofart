@@ -48,7 +48,7 @@ class App extends Component {
                .then(function(dataUrl){
                  console.log(dataUrl);
                  let wall_of_art_version = wallOfArtVersion;
-                 axios.post('http://localhost:5000/saveWallOfArt',{ wall_of_art_version:wall_of_art_version, base64img:dataUrl })
+                 axios.post('localhost:5000/saveWallOfArt',{ wall_of_art_version:wall_of_art_version, base64img:dataUrl })
                       .then(res=>{
                         console.log(res.data);
                         if(res.data.status==='OK'){
@@ -136,7 +136,7 @@ class App extends Component {
   componentDidMount(){
     console.log('Executing componentDidMount()');
 
-    axios.get('http://localhost:5000/getWallsHistory')
+    axios.get('http://157.230.134.30:5000/getWallsHistory')
          .then(res=>{
            console.log(res.data);
            this.setState({
@@ -145,7 +145,7 @@ class App extends Component {
          });
 
     let intervalId = this.setImmediateInterval(()=>{
-      axios.get('http://localhost:5000/getCanvases')
+      axios.get('http://157.230.134.30:5000/getCanvases')
            .then(res=>{
              let resJson = {};
              let wallOfArtVersion = null;

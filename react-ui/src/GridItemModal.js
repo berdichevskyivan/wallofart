@@ -53,7 +53,7 @@ class GridItemModal extends React.Component {
       let canvasIndex = this.props.openedcanvasindex;
       console.log(base64img);
       console.log(canvasIndex);
-      axios.post('http://localhost:5000/saveImageToDatabase',{ canvas_id:canvasIndex, base64img:base64img })
+      axios.post('localhost:5000/saveImageToDatabase',{ canvas_id:canvasIndex, base64img:base64img })
            .then(res=>{
              console.log(res.data);
              if(res.data.status==='OK'){
