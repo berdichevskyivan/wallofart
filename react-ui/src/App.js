@@ -194,7 +194,7 @@ class App extends Component {
 
     let paragraphs = this.state.showParagraphs ?
                      <div><p className="paragraph" id="wallTitle">Earth's Wall of Art</p>
-                     <p className="paragraph" style={{"fontSize":"20px"}}>Select an empty cell from the grid and leave your mark on the wall</p></div> :
+                     <p className="paragraph" style={{"fontSize":"20px"}}>Select an empty space from the wall and leave your mark</p></div> :
                      null;
 
     let buttons = this.state.showParagraphs ?

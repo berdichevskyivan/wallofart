@@ -80,7 +80,7 @@ module.exports = function(proxy, allowedHost) {
       // See https://github.com/facebook/create-react-app/issues/387.
       disableDotRule: true,
     },
-    public: allowedHost,
+    public: 'earthswallofart.com',
     proxy,
     before(app, server) {
       if (fs.existsSync(paths.proxySetup)) {
