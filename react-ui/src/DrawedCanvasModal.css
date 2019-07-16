@@ -1,0 +1,18 @@
+.bodyOfModal {
+  display: flex;
+  justify-content: center;
+}
+
+.imgWrapper {
+  height: 400px;
+  width: 400px;
+  position: relative;
+}
+
+.bodyOfModal img{
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+  width: 100%;
+}

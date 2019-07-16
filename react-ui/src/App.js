@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import GridItemModal from './GridItemModal';
 import HistoryModal from './HistoryModal';
+import DrawedCanvasModal from './DrawedCanvasModal';
 import { Button } from 'react-bootstrap';
 import domtoimage from 'dom-to-image';
 import download from 'downloadjs';
@@ -17,6 +18,7 @@ class App extends Component {
     this.state = {
       modalShow: false,
       historyModalShow:false,
+      drawedModalShow:false,
       canvasesJson: {},
       wallOfArtHistory:[],
       allCanvasesLoaded: false,
@@ -24,10 +26,12 @@ class App extends Component {
       intervalId:null,
       showParagraphs:true,
       wallOfArtVersion:null,
-      imageWasSaved:false
+      imageWasSaved:false,
+      drawedImgDataURL:''
     }
     this.showModalAndUpdateModalIndex = this.showModalAndUpdateModalIndex.bind(this);
     this.showHistoryModal = this.showHistoryModal.bind(this);
+    this.showDrawedCanvasModal = this.showDrawedCanvasModal.bind(this);
     this.setImmediateInterval = this.setImmediateInterval.bind(this);
     this.downloadWallAsImg = this.downloadWallAsImg.bind(this);
     this.toggleParagraphs = this.toggleParagraphs.bind(this);
@@ -94,6 +98,13 @@ class App extends Component {
     });
   }
 
+  showDrawedCanvasModal(imgURL){
+    this.setState({
+      drawedImgDataURL:imgURL,
+      drawedModalShow: true
+    });
+  }
+
   createGridItems(rowIndex){
     let gridItems = [];
     for(let i = 0 ; i < 10 ; i++){
@@ -103,7 +114,7 @@ class App extends Component {
         gridItems.push(<div className="grid-item"
                             key={gridIndex}>
                        <img className="drawing-from-user"
-                            src={this.state.canvasesJson['canvas_number_'+gridIndex]} /></div>);
+                            src={gridImgSrc} onClick={()=>this.showDrawedCanvasModal(gridImgSrc)} /></div>);
       }else{
         if(this.state.imageWasSaved){
           gridItems.push(<div className="grid-item-disabled"
@@ -138,7 +149,6 @@ class App extends Component {
 
     axios.get('http://157.230.134.30:5000/getWallsHistory')
          .then(res=>{
-           console.log(res.data);
            this.setState({
              wallOfArtHistory:res.data
            });
@@ -190,6 +200,7 @@ class App extends Component {
 
     let modalClose = () => this.setState({modalShow:false});
     let historyModalClose = () => this.setState({historyModalShow:false});
+    let drawedModalClose = () => this.setState({drawedModalShow:false});
     let handleSave = () => this.setState({imageWasSaved:true},()=>{console.log('handleSave() was called!')});
 
     let paragraphs = this.state.showParagraphs ?
@@ -228,6 +239,10 @@ class App extends Component {
          show={this.state.historyModalShow}
          onHide={historyModalClose}
          wallsHistory={this.state.wallOfArtHistory} />
+         <DrawedCanvasModal
+          show={this.state.drawedModalShow}
+          onHide={drawedModalClose}
+          imgDataURL={this.state.drawedImgDataURL} />
       </div>
     );
   }

@@ -26,7 +26,6 @@ class HistoryModal extends React.Component {
         <h1 className="historyModalTitle">Download previous Walls</h1>
         <ul className="historyList">
           {this.props.wallsHistory.map((obj,index)=>{
-            console.log(obj);
             return <li><a href={obj['wall_of_art_image']} download={`wallofart${obj['wall_of_art_version']}`}>Wall of Art {obj['wall_of_art_version']}</a></li>;
           })}
         </ul>
