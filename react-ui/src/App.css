@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css?family=Kalam&display=swap');
 @import url('https://fonts.googleapis.com/css?family=Trade+Winds&display=swap');
 
 .App p {
@@ -14,6 +13,13 @@
   color: black;
 }
 
+@media all and (max-width: 840px) {
+  #wallTitle {
+    height: 100%;
+    font-size: 40px;
+  }
+}
+
 .App .wallOfArt {
   width: 1000px;
   height: 1000px;
@@ -25,7 +31,7 @@
   width: 1050px;
   height: 1050px;
   margin: 0 auto;
-  margin-bottom: 25px;
+  margin-bottom: 55px;
   border: 2px solid black;
   border-radius: 0px;
   margin-top: 10px;

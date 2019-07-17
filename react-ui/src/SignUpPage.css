@@ -1,0 +1,43 @@
+.container {
+  display: inline-block;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 300px;
+  height: 200px;
+  margin: auto;
+}
+
+.signupContainer {
+  display: flex;
+  justify-content: center;
+  flex-flow: column;
+}
+
+#signupTitle {
+  font-weight: bold;
+  text-align: center;
+  font-size: 30px;
+  font-family: 'Trade Winds', sans-serif;
+  margin-bottom: 0;
+}
+
+.signupContainer button {
+  margin-top: 20px;
+}
+
+.signupContainer a {
+  text-align: center;
+  margin-top: 10px;
+  text-decoration: none;
+}
+
+.signupContainer input{
+  padding-left: 5px;
+}
+
+.signupContainer label{
+  margin-top: 5px;
+}

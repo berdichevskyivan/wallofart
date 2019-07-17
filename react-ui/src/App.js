@@ -3,6 +3,7 @@ import axios from 'axios';
 import GridItemModal from './GridItemModal';
 import HistoryModal from './HistoryModal';
 import DrawedCanvasModal from './DrawedCanvasModal';
+import MainNavbar from './MainNavbar'
 import { Button } from 'react-bootstrap';
 import domtoimage from 'dom-to-image';
 import download from 'downloadjs';
@@ -52,7 +53,7 @@ class App extends Component {
                .then(function(dataUrl){
                  console.log(dataUrl);
                  let wall_of_art_version = wallOfArtVersion;
-                 axios.post('http://157.230.134.30:5000/saveWallOfArt',{ wall_of_art_version:wall_of_art_version, base64img:dataUrl })
+                 axios.post('http://localhost:5000/saveWallOfArt',{ wall_of_art_version:wall_of_art_version, base64img:dataUrl })
                       .then(res=>{
                         console.log(res.data);
                         if(res.data.status==='OK'){
@@ -112,17 +113,17 @@ class App extends Component {
       let gridImgSrc = this.state.canvasesJson['canvas_number_'+gridIndex];
       if(gridImgSrc!==null){
         gridItems.push(<div className="grid-item"
-                            key={gridIndex}>
+                            key={gridIndex} id={gridIndex}>
                        <img className="drawing-from-user"
                             src={gridImgSrc} onClick={()=>this.showDrawedCanvasModal(gridImgSrc)} /></div>);
       }else{
         if(this.state.imageWasSaved){
           gridItems.push(<div className="grid-item-disabled"
-                              key={gridIndex}
+                              key={gridIndex} id={gridIndex}
                               ></div>);
         }else{
           gridItems.push(<div className="grid-item"
-                              key={gridIndex}
+                              key={gridIndex} id={gridIndex}
                               onClick={()=>this.showModalAndUpdateModalIndex(gridIndex)}></div>);
         }
       }
@@ -147,7 +148,7 @@ class App extends Component {
   componentDidMount(){
     console.log('Executing componentDidMount()');
 
-    axios.get('http://157.230.134.30:5000/getWallsHistory')
+    axios.get('http://localhost:5000/getWallsHistory')
          .then(res=>{
            this.setState({
              wallOfArtHistory:res.data
@@ -155,7 +156,7 @@ class App extends Component {
          });
 
     let intervalId = this.setImmediateInterval(()=>{
-      axios.get('http://157.230.134.30:5000/getCanvases')
+      axios.get('http://localhost:5000/getCanvases')
            .then(res=>{
              let resJson = {};
              let wallOfArtVersion = null;
@@ -222,6 +223,7 @@ class App extends Component {
 
     return (
       <div className="App">
+        <MainNavbar />
         { paragraphs }
         { buttons }
         <div className="wallWrapper">
