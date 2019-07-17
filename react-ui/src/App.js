@@ -28,7 +28,9 @@ class App extends Component {
       showParagraphs:true,
       wallOfArtVersion:null,
       imageWasSaved:false,
-      drawedImgDataURL:''
+      drawedImgDataURL:'',
+      userLoggedIn:false,
+      loggedInUsername:null
     }
     this.showModalAndUpdateModalIndex = this.showModalAndUpdateModalIndex.bind(this);
     this.showHistoryModal = this.showHistoryModal.bind(this);
@@ -37,6 +39,16 @@ class App extends Component {
     this.downloadWallAsImg = this.downloadWallAsImg.bind(this);
     this.toggleParagraphs = this.toggleParagraphs.bind(this);
     this.saveWallOfArt = this.saveWallOfArt.bind(this);
+    this.logout = this.logout.bind(this);
+  }
+
+  logout(){
+    localStorage.removeItem('username');
+    this.setState({
+      userLoggedIn:false,
+      loggedInUsername:null
+    });
+    window.location.reload();
   }
 
   saveWallOfArt(){
@@ -117,7 +129,7 @@ class App extends Component {
                        <img className="drawing-from-user"
                             src={gridImgSrc} onClick={()=>this.showDrawedCanvasModal(gridImgSrc)} /></div>);
       }else{
-        if(this.state.imageWasSaved){
+        if(localStorage.getItem('drawingsMadeByUser')>0){
           gridItems.push(<div className="grid-item-disabled"
                               key={gridIndex} id={gridIndex}
                               ></div>);
@@ -197,12 +209,40 @@ class App extends Component {
     clearInterval(this.state.intervalId);
   }
 
+  componentWillMount(){
+    console.log(localStorage.getItem('username'));
+    if(localStorage.getItem('username') !== null){
+      var username = localStorage.getItem('username');
+      this.setState({
+        userLoggedIn:true,
+        loggedInUsername:username
+      });
+    }else{
+      this.setState({
+        userLoggedIn:false,
+        loggedInUsername:null
+      });
+    }
+  }
+
   render(){
+
+    if(localStorage.getItem('drawingsMadeByUser') > 0){
+      if( ( localStorage.getItem('timer') - new Date().getTime() ) < 0 ){
+        localStorage.setItem('drawingsMadeByUser',0);
+      }
+    }
 
     let modalClose = () => this.setState({modalShow:false});
     let historyModalClose = () => this.setState({historyModalShow:false});
     let drawedModalClose = () => this.setState({drawedModalShow:false});
-    let handleSave = () => this.setState({imageWasSaved:true},()=>{console.log('handleSave() was called!')});
+    let handleSave = () => {
+      this.setState({imageWasSaved:true});
+      var drawingsMadeByUser = localStorage.getItem('drawingsMadeByUser') == null ? 0 : localStorage.getItem('drawingsMadeByUser');
+      localStorage.setItem('drawingsMadeByUser',drawingsMadeByUser+1);
+      // User can draw again after 1 minute
+      localStorage.setItem('timer',new Date().getTime()+(1*60*1000));
+    };
 
     let paragraphs = this.state.showParagraphs ?
                      <div><p className="paragraph" id="wallTitle">Earth's Wall of Art</p>
@@ -223,7 +263,7 @@ class App extends Component {
 
     return (
       <div className="App">
-        <MainNavbar />
+        <MainNavbar username={this.state.loggedInUsername} isuserloggedin={this.state.userLoggedIn} logout={this.logout} />
         { paragraphs }
         { buttons }
         <div className="wallWrapper">
@@ -235,7 +275,8 @@ class App extends Component {
         <GridItemModal
          show={this.state.modalShow}
          onHide={modalClose}
-         openedcanvasindex={this.state.openedCanvasIndex} handleSave={handleSave}
+         openedcanvasindex={this.state.openedCanvasIndex}
+         handleSave={handleSave}
          />
         <HistoryModal
          show={this.state.historyModalShow}

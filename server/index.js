@@ -28,7 +28,7 @@ if (!isDev && cluster.isMaster) {
     user:'postgres',
     host:'localhost',
     database:'wall_of_art',
-    password:'rakmodar',
+    password:'dgtic123',
     port:5432
   });
 
@@ -65,6 +65,16 @@ if (!isDev && cluster.isMaster) {
     let data = [];
     res.set('Content-Type', 'application/json');
     pool.query('select * from wall_of_art_history', (err, dbres) => {
+      if (err) return;
+      data = dbres.rows;
+      res.send(data);
+    });
+  });
+
+  app.post('/login', function (req, res) {
+    let data = [];
+    res.set('Content-Type', 'application/json');
+    pool.query(`select count(*) from users where username=\'${req.body.username}\' and password=\'${req.body.password}\' ;`, (err, dbres) => {
       if (err) return;
       data = dbres.rows;
       res.send(data);
@@ -122,6 +132,41 @@ if (!isDev && cluster.isMaster) {
                                   +`DELETE FROM wall_of_art; `
                                   +`INSERT INTO wall_of_art(wall_of_art_version) VALUES(${req.body.wall_of_art_version+1});`
         await client.query(insertWallOfArtSql)
+        await client.query('COMMIT')
+        res.send({
+          status:'OK'
+        })
+      } catch (e) {
+        await client.query('ROLLBACK')
+        res.send({
+          status:'ERROR'
+        })
+        throw e
+      } finally {
+        client.release()
+      }
+    })().catch(e => {
+      console.error(e.stack);
+      res.send({
+        status:'ERROR'
+      });
+    });
+  });
+
+  //Save image to database
+  app.post('/saveUsernameAndPassword',function(req, res){
+    console.log('Saving username and password');
+    res.set('Content-Type', 'application/json');
+    //console.log(req.body.base64img);
+    (async () => {
+      // note: we don't try/catch this because if connecting throws an exception
+      // we don't need to dispose of the client (it will be undefined)
+      const client = await pool.connect()
+
+      try {
+        await client.query('BEGIN')
+        const saveUserAndPassSql = `INSERT INTO users(username,password) VALUES('${req.body.username}','${req.body.password}'); `
+        await client.query(saveUserAndPassSql)
         await client.query('COMMIT')
         res.send({
           status:'OK'
