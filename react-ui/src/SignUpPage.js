@@ -17,7 +17,8 @@ class SignUpPage extends React.Component {
       disableButton:false,
       responseMessage:'',
       userLoggedIn:true,
-      loggedInUsername:''
+      loggedInUsername:null,
+      usernameId:null
     }
     this.updateUsername = this.updateUsername.bind(this);
     this.updatePassword = this.updatePassword.bind(this);
@@ -28,9 +29,11 @@ class SignUpPage extends React.Component {
 
   logout(){
     localStorage.removeItem('username');
+    localStorage.removeItem('usernameId');
     this.setState({
       userLoggedIn:false,
-      loggedInUsername:null
+      loggedInUsername:null,
+      usernameId:null
     });
   }
 
@@ -74,13 +77,28 @@ class SignUpPage extends React.Component {
           errorAtSignUp:false,
           responseMessage:'You\'re ready for drawing!'
         });
-        setTimeout(()=>this.props.history.push('/login'),2000);
+        axios.post('http://localhost:5000/getUsernameId',{
+          username:username
+        }).then((res)=>{
+          var data = res.data;
+          var id = data[0].id;
+          localStorage.setItem('username',username);
+          localStorage.setItem('usernameId',id);
+          setTimeout(()=>this.props.history.push('/'),2000);
+        }).catch((err)=>{
+          this.setState({
+            signUpPerformed:true,
+            errorAtSignUp:true,
+            responseMessage:'An error ocurred while logging in'
+          });
+          setTimeout(()=>this.props.history.push('/login'),2000);
+        });
       }else{
         this.toggleButton();
         this.setState({
           signUpPerformed:true,
           errorAtSignUp:true,
-          responseMessage:'There was an error'
+          responseMessage:data.errorMsg
         });
       }
     }).catch((err)=>{
@@ -98,16 +116,20 @@ class SignUpPage extends React.Component {
 
   componentWillMount(){
     console.log(localStorage.getItem('username'));
-    if(localStorage.getItem('username') !== null){
+    console.log(localStorage.getItem('usernameId'));
+    if(localStorage.getItem('username') !== null && localStorage.getItem('usernameId') !== null){
       var username = localStorage.getItem('username');
+      var id = localStorage.getItem('usernameId');
       this.setState({
         userLoggedIn:true,
-        loggedInUsername:username
+        loggedInUsername:username,
+        usernameId:id
       });
     }else{
       this.setState({
         userLoggedIn:false,
-        loggedInUsername:null
+        loggedInUsername:null,
+        usernameId:null
       });
     }
   }
@@ -118,9 +140,9 @@ class SignUpPage extends React.Component {
 
     if(this.state.signUpPerformed){
       if(this.state.errorAtSignUp){
-        statusText = <Alert variant="danger">{this.state.responseMessage}</Alert>
+        statusText = <Alert className="alertFromLoginAndSignup" variant="danger">{this.state.responseMessage}</Alert>
       }else{
-        statusText = <Alert variant="success">{this.state.responseMessage}</Alert>
+        statusText = <Alert className="alertFromLoginAndSignup" variant="success">{this.state.responseMessage}</Alert>
       }
     }
 

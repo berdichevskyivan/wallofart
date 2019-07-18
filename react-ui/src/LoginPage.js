@@ -16,7 +16,8 @@ class LoginPage extends React.Component {
       disableButton:false,
       responseMessage:'',
       userLoggedIn:true,
-      loggedInUsername:null
+      loggedInUsername:null,
+      usernameId:null
     }
     this.updateUsername = this.updateUsername.bind(this);
     this.updatePassword = this.updatePassword.bind(this);
@@ -27,9 +28,11 @@ class LoginPage extends React.Component {
 
   logout(){
     localStorage.removeItem('username');
+    localStorage.removeItem('usernameId');
     this.setState({
       userLoggedIn:false,
-      loggedInUsername:null
+      loggedInUsername:null,
+      usernameId:null
     });
   }
 
@@ -66,16 +69,17 @@ class LoginPage extends React.Component {
       password:password
     }).then((res)=>{
       var data = res.data;
-      var count = data[0].count;
-      console.log(data[0].count);
-      if(count>0){
+      if(data.length!==0){
+        var id = data[0].id;
+        var username = data[0].username;
         this.setState({
           loginPerformed:true,
           errorAtLogin:false,
           responseMessage:'You\'re ready for drawing!'
         });
         localStorage.setItem('username',username);
-        setTimeout(()=>this.props.history.push('/',2000));
+        localStorage.setItem('usernameId',id);
+        setTimeout(()=>this.props.history.push('/'),1000);
       }else{
         this.setState({
           loginPerformed:true,
@@ -97,16 +101,21 @@ class LoginPage extends React.Component {
   }
 
   componentWillMount(){
-    if(localStorage.getItem('username') !== null){
+    console.log(localStorage.getItem('username'));
+    console.log(localStorage.getItem('usernameId'));
+    if(localStorage.getItem('username') !== null && localStorage.getItem('usernameId') !== null){
       var username = localStorage.getItem('username');
+      var id = localStorage.getItem('usernameId');
       this.setState({
         userLoggedIn:true,
-        loggedInUsername:username
+        loggedInUsername:username,
+        usernameId:id
       });
     }else{
       this.setState({
         userLoggedIn:false,
-        loggedInUsername:null
+        loggedInUsername:null,
+        usernameId:null
       });
     }
   }
@@ -117,9 +126,9 @@ class LoginPage extends React.Component {
 
     if(this.state.loginPerformed){
       if(this.state.errorAtLogin){
-        statusText = <Alert variant="danger">{this.state.responseMessage}</Alert>
+        statusText = <Alert className="alertFromLoginAndSignup" variant="danger">{this.state.responseMessage}</Alert>
       }else{
-        statusText = <Alert variant="success">{this.state.responseMessage}</Alert>
+        statusText = <Alert className="alertFromLoginAndSignup" variant="success">{this.state.responseMessage}</Alert>
       }
     }
 
@@ -134,7 +143,7 @@ class LoginPage extends React.Component {
             <label htmlFor="password">Password</label>
             <input type="password" id="password" value={this.state.password} onChange={this.updatePassword}/>
             <Button onClick={this.submitLogin} disabled={this.state.disableButton}>Log In</Button>
-            <a href="/login">Already signed up?</a>
+            <a href="/signup">Haven't signed up yet?</a>
             { statusText }
           </div>
         </div>

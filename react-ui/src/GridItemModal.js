@@ -51,7 +51,13 @@ class GridItemModal extends React.Component {
     if(lc.getImage()!==null){
       let base64img = lc.getImage().toDataURL();
       let canvasIndex = this.props.openedcanvasindex;
-      axios.post('http://localhost:5000/saveImageToDatabase',{ canvas_id:canvasIndex, base64img:base64img })
+      let usernameid = parseInt(localStorage.getItem('usernameId'));
+      let wallofartversion = this.props.wallofartversion;
+      console.log('version '+wallofartversion)
+      axios.post('http://localhost:5000/saveImageToDatabase',{ canvas_id:canvasIndex,
+                                                               base64img:base64img,
+                                                               usernameid:usernameid,
+                                                               wallofartversion:wallofartversion})
            .then(res=>{
              console.log(res.data);
              if(res.data.status==='OK'){
@@ -59,11 +65,13 @@ class GridItemModal extends React.Component {
                 imgWasSaved:true,
                 errorAtSaving:false,
                 responseMessage:'Your drawing was saved successfully!'
-              },()=>{this.props.handleSave()});
-               setTimeout(()=>{
-                  this.toggleButton();
-                  this.props.onHide();
-               },1000);
+              },()=>{
+                this.props.handleSave()
+                setTimeout(()=>{
+                   this.toggleButton();
+                   this.props.onHide();
+                },1000);
+              });
              }else{
                this.toggleButton();
                this.setState({

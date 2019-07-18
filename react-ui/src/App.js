@@ -20,7 +20,12 @@ class App extends Component {
       modalShow: false,
       historyModalShow:false,
       drawedModalShow:false,
-      canvasesJson: {},
+      drawedModalUserId:null,
+      drawedModalId:null,
+      drawedModalUsername:null,
+      drawedModalUpvotes:null,
+      drawedModalDownvotes:null,
+      canvasesJson: null,
       wallOfArtHistory:[],
       allCanvasesLoaded: false,
       openedCanvasIndex:null,
@@ -30,7 +35,8 @@ class App extends Component {
       imageWasSaved:false,
       drawedImgDataURL:'',
       userLoggedIn:false,
-      loggedInUsername:null
+      loggedInUsername:null,
+      usernameId:null
     }
     this.showModalAndUpdateModalIndex = this.showModalAndUpdateModalIndex.bind(this);
     this.showHistoryModal = this.showHistoryModal.bind(this);
@@ -44,10 +50,7 @@ class App extends Component {
 
   logout(){
     localStorage.removeItem('username');
-    this.setState({
-      userLoggedIn:false,
-      loggedInUsername:null
-    });
+    localStorage.removeItem('usernameId');
     window.location.reload();
   }
 
@@ -111,10 +114,15 @@ class App extends Component {
     });
   }
 
-  showDrawedCanvasModal(imgURL){
+  showDrawedCanvasModal(gridImgSrc,gridImgId,gridImgUserId,gridImgUsername,gridImgUpvotes,gridImgDownvotes){
     this.setState({
-      drawedImgDataURL:imgURL,
-      drawedModalShow: true
+      drawedImgDataURL:gridImgSrc,
+      drawedModalShow: true,
+      drawedModalUserId:gridImgUserId,
+      drawedModalId:gridImgId,
+      drawedModalUsername:gridImgUsername,
+      drawedModalUpvotes:gridImgUpvotes,
+      drawedModalDownvotes:gridImgDownvotes
     });
   }
 
@@ -122,14 +130,9 @@ class App extends Component {
     let gridItems = [];
     for(let i = 0 ; i < 10 ; i++){
       let gridIndex = i+1+(rowIndex*10);
-      let gridImgSrc = this.state.canvasesJson['canvas_number_'+gridIndex];
-      if(gridImgSrc!==null){
-        gridItems.push(<div className="grid-item"
-                            key={gridIndex} id={gridIndex}>
-                       <img className="drawing-from-user"
-                            src={gridImgSrc} onClick={()=>this.showDrawedCanvasModal(gridImgSrc)} /></div>);
-      }else{
-        if(localStorage.getItem('drawingsMadeByUser')>0){
+      let canvasesJson = this.state.canvasesJson;
+      if(canvasesJson == null){
+        if(localStorage.getItem('drawingsMadeByUser')>0 || this.state.loggedInUsername==null){
           gridItems.push(<div className="grid-item-disabled"
                               key={gridIndex} id={gridIndex}
                               ></div>);
@@ -137,6 +140,42 @@ class App extends Component {
           gridItems.push(<div className="grid-item"
                               key={gridIndex} id={gridIndex}
                               onClick={()=>this.showModalAndUpdateModalIndex(gridIndex)}></div>);
+        }
+      }else{
+        let gridImgSrc = null;
+        let gridImgId = null;
+        let gridImgUserId = null;
+        let gridImgUsername = null;
+        let gridImgUpvotes = null;
+        let gridImgDownvotes = null;
+
+        for(var x = 0 ; x < canvasesJson.length ; x++){
+          if(canvasesJson[x].drawingCanvasNumber == gridIndex){
+            gridImgSrc = canvasesJson[x].drawingUrl;
+            gridImgId = canvasesJson[x].drawingId;
+            gridImgUserId = canvasesJson[x].drawingUserId;
+            gridImgUsername = canvasesJson[x].drawingUserName;
+            gridImgUpvotes = canvasesJson[x].drawingUpvotes;
+            gridImgDownvotes = canvasesJson[x].drawingDownvotes;
+          }
+        }
+
+        if(gridImgSrc!==null && gridImgId!==null && gridImgUserId!==null){
+          gridItems.push(<div className="grid-item"
+                              key={gridIndex} id={gridIndex}>
+                         <img className="drawing-from-user"
+                              src={gridImgSrc} onClick={()=>this.showDrawedCanvasModal(gridImgSrc,gridImgId,gridImgUserId
+                                                                                      ,gridImgUsername,gridImgUpvotes,gridImgDownvotes)} /></div>);
+        }else{
+          if(localStorage.getItem('drawingsMadeByUser')>0 || this.state.loggedInUsername==null){
+            gridItems.push(<div className="grid-item-disabled"
+                                key={gridIndex} id={gridIndex}
+                                ></div>);
+          }else{
+            gridItems.push(<div className="grid-item"
+                                key={gridIndex} id={gridIndex}
+                                onClick={()=>this.showModalAndUpdateModalIndex(gridIndex)}></div>);
+          }
         }
       }
 
@@ -167,33 +206,57 @@ class App extends Component {
            });
          });
 
-    let intervalId = this.setImmediateInterval(()=>{
-      axios.get('http://localhost:5000/getCanvases')
-           .then(res=>{
-             let resJson = {};
-             let wallOfArtVersion = null;
-             resJson = res.data[0];
-             wallOfArtVersion = resJson['wall_of_art_version'];
-             delete resJson['wall_of_art_version'];
-             this.setState({
-               canvasesJson: resJson,
-               allCanvasesLoaded: true,
-               wallOfArtVersion:wallOfArtVersion
-             });
-           });
-    },3000);
+   let intervalId = this.setImmediateInterval(()=>{
 
-    this.setState({
-      intervalId:intervalId
-    });
+     axios.get('http://localhost:5000/getWallVersion')
+          .then(res=>{
+            this.setState({
+              wallOfArtVersion:res.data[0].wall_of_art_version
+            },()=>{
+              axios.post('http://localhost:5000/getCanvases',{wallofartversion:this.state.wallOfArtVersion == null ? 1 : this.state.wallOfArtVersion})
+                   .then(res=>{
+                     var data = res.data;
+                     if(data.length==0){
+                       this.setState({
+                         canvasesJson: null,
+                         allCanvasesLoaded: true
+                       });
+                     }else{
+                       var canvasesJson = [];
+                       for(var i = 0 ; i < data.length ; i++){
+                         var drawingJson = {
+                           drawingId:data[i].id,
+                           drawingUserId:data[i].usernameid,
+                           drawingCanvasNumber:data[i].canvasnumber,
+                           drawingUrl:data[i].base64img,
+                           drawingUserName:data[i].username,
+                           drawingUpvotes:data[i].upvotes,
+                           drawingDownvotes:data[i].downvotes
+                         }
+                         canvasesJson.push(drawingJson);
+                       }
+                       this.setState({
+                         canvasesJson: canvasesJson,
+                         allCanvasesLoaded: true
+                       });
+                     }
+                   });
+            });
+          });
 
-    setTimeout(()=>{
-      let isRequiredAmount = document.getElementsByTagName('img').length === 100 ? true : false ;
+   },3000);
 
-      if(isRequiredAmount){
-        this.saveWallOfArt();
-      }
-    },5000)
+   this.setState({
+     intervalId:intervalId
+   });
+
+   setTimeout(()=>{
+     let isRequiredAmount = document.getElementsByTagName('img').length === 100 ? true : false ;
+
+     if(isRequiredAmount){
+       this.saveWallOfArt();
+     }
+   },5000)
 
   }
 
@@ -211,22 +274,26 @@ class App extends Component {
 
   componentWillMount(){
     console.log(localStorage.getItem('username'));
-    if(localStorage.getItem('username') !== null){
+    console.log(localStorage.getItem('usernameId'));
+    if(localStorage.getItem('username') !== null && localStorage.getItem('usernameId') !== null){
       var username = localStorage.getItem('username');
+      var id = localStorage.getItem('usernameId');
       this.setState({
         userLoggedIn:true,
-        loggedInUsername:username
+        loggedInUsername:username,
+        usernameId:id
       });
     }else{
       this.setState({
         userLoggedIn:false,
-        loggedInUsername:null
+        loggedInUsername:null,
+        usernameId:null
       });
     }
   }
 
   render(){
-
+    console.log(localStorage.getItem('drawingsMadeByUser'));
     if(localStorage.getItem('drawingsMadeByUser') > 0){
       if( ( localStorage.getItem('timer') - new Date().getTime() ) < 0 ){
         localStorage.setItem('drawingsMadeByUser',0);
@@ -238,16 +305,27 @@ class App extends Component {
     let drawedModalClose = () => this.setState({drawedModalShow:false});
     let handleSave = () => {
       this.setState({imageWasSaved:true});
-      var drawingsMadeByUser = localStorage.getItem('drawingsMadeByUser') == null ? 0 : localStorage.getItem('drawingsMadeByUser');
+      var drawingsMadeByUser = localStorage.getItem('drawingsMadeByUser') == null ? 0 : parseInt(localStorage.getItem('drawingsMadeByUser'));
       localStorage.setItem('drawingsMadeByUser',drawingsMadeByUser+1);
-      // User can draw again after 1 minute
-      localStorage.setItem('timer',new Date().getTime()+(1*60*1000));
+      if(parseInt(localStorage.getItem('drawingsMadeByUser'))>0){
+        console.log('Starting timer');
+        // User can draw again after 1 minute
+        localStorage.setItem('timer',new Date().getTime()+(1*60*1000));
+      }
+
     };
 
     let paragraphs = this.state.showParagraphs ?
                      <div><p className="paragraph" id="wallTitle">Earth's Wall of Art</p>
-                     <p className="paragraph" style={{"fontSize":"20px"}}>Select an empty space from the wall and leave your mark</p></div> :
+                     <p className="paragraph" style={{"fontSize":"20px"}}>Select an empty space from the wall and leave your mark</p>
+                     </div> :
                      null;
+
+   let rules = this.state.userLoggedIn == false ?
+                    <div>
+                    <p className="paragraph rules" style={{"fontSize":"20px"}}>You need to log in first!</p>
+                    </div> :
+                    null;
 
     let buttons = this.state.showParagraphs ?
                   <div className="myFavoriteButton"><Button
@@ -265,6 +343,7 @@ class App extends Component {
       <div className="App">
         <MainNavbar username={this.state.loggedInUsername} isuserloggedin={this.state.userLoggedIn} logout={this.logout} />
         { paragraphs }
+        { rules }
         { buttons }
         <div className="wallWrapper">
           <div className="wallOfArt grid-container">
@@ -277,6 +356,7 @@ class App extends Component {
          onHide={modalClose}
          openedcanvasindex={this.state.openedCanvasIndex}
          handleSave={handleSave}
+         wallofartversion={this.state.wallOfArtVersion}
          />
         <HistoryModal
          show={this.state.historyModalShow}
@@ -285,7 +365,12 @@ class App extends Component {
          <DrawedCanvasModal
           show={this.state.drawedModalShow}
           onHide={drawedModalClose}
-          imgDataURL={this.state.drawedImgDataURL} />
+          imgDataURL={this.state.drawedImgDataURL}
+          imgUserId={this.state.drawedModalUserId}
+          imgId={this.state.drawedModalId}
+          imgUsername={this.state.drawedModalUsername}
+          imgUpvotes={this.state.drawedModalUpvotes}
+          imgDownvotes={this.state.drawedModalDownvotes} />
       </div>
     );
   }

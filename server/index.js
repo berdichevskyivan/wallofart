@@ -51,10 +51,11 @@ if (!isDev && cluster.isMaster) {
     res.send('{"message":"Hello from the custom server!"}');
   });
 
-  app.get('/getCanvases', function (req, res) {
-    let data = [];
+  app.post('/getCanvases', function (req, res) {
+    let data = {};
     res.set('Content-Type', 'application/json');
-    pool.query('select * from wall_of_art', (err, dbres) => {
+    pool.query(`select a.id,a.usernameid,b.username,a.canvasnumber,a.base64img, a.upvotes,a.downvotes `+
+      `from users_drawings a, users b where a.usernameid = b.id and a.wall_of_art_version=${req.body.wallofartversion}`, (err, dbres) => {
       if (err) return;
       data = dbres.rows;
       res.send(data);
@@ -71,10 +72,40 @@ if (!isDev && cluster.isMaster) {
     });
   });
 
+  app.get('/getWallVersion', function (req, res) {
+    let data = {};
+    res.set('Content-Type', 'application/json');
+    pool.query('select wall_of_art_version from wall_of_art_params', (err, dbres) => {
+      if (err) return;
+      data = dbres.rows;
+      res.send(data);
+    });
+  });
+
   app.post('/login', function (req, res) {
     let data = [];
     res.set('Content-Type', 'application/json');
-    pool.query(`select count(*) from users where username=\'${req.body.username}\' and password=\'${req.body.password}\' ;`, (err, dbres) => {
+    pool.query(`select id,username from users where username=\'${req.body.username}\' and password=\'${req.body.password}\' ;`, (err, dbres) => {
+      if (err) return;
+      data = dbres.rows;
+      res.send(data);
+    });
+  });
+
+  app.post('/getUsernameId', function (req, res) {
+    let data = [];
+    res.set('Content-Type', 'application/json');
+    pool.query(`select id from users where username=\'${req.body.username}\' ;`, (err, dbres) => {
+      if (err) return;
+      data = dbres.rows;
+      res.send(data);
+    });
+  });
+
+  app.post('/getDrawingMetaData', function (req, res) {
+    let data = [];
+    res.set('Content-Type', 'application/json');
+    pool.query(`select upvotes,downvotes,b.username from users_drawings a , users b where a.usernameid = b.id and a.id=${req.body.drawingId};`, (err, dbres) => {
       if (err) return;
       data = dbres.rows;
       res.send(data);
@@ -85,7 +116,6 @@ if (!isDev && cluster.isMaster) {
   app.post('/saveImageToDatabase',function(req, res){
     console.log('Saving image to database...');
     res.set('Content-Type', 'application/json');
-    //console.log(req.body.base64img);
     (async () => {
       // note: we don't try/catch this because if connecting throws an exception
       // we don't need to dispose of the client (it will be undefined)
@@ -93,18 +123,19 @@ if (!isDev && cluster.isMaster) {
 
       try {
         await client.query('BEGIN')
-        const updateWallOfArtSql = `UPDATE wall_of_art SET canvas_number_${req.body.canvas_id}='${req.body.base64img}' `
-        await client.query(updateWallOfArtSql)
+        const insertIntoUserDrawings = `INSERT INTO users_drawings(usernameid,canvasnumber,base64img,wall_of_art_version) `
+                                 + `VALUES(${req.body.usernameid},${req.body.canvas_id},'${req.body.base64img}',${req.body.wallofartversion});`;
+        await client.query(insertIntoUserDrawings)
         await client.query('COMMIT')
         res.send({
           status:'OK'
         })
       } catch (e) {
         await client.query('ROLLBACK')
+        throw e
         res.send({
           status:'ERROR'
         })
-        throw e
       } finally {
         client.release()
       }
@@ -129,8 +160,7 @@ if (!isDev && cluster.isMaster) {
       try {
         await client.query('BEGIN')
         const insertWallOfArtSql = `INSERT INTO wall_of_art_history VALUES(${req.body.wall_of_art_version},'${req.body.base64img}'); `
-                                  +`DELETE FROM wall_of_art; `
-                                  +`INSERT INTO wall_of_art(wall_of_art_version) VALUES(${req.body.wall_of_art_version+1});`
+                                  +`UPDATE wall_of_art_params SET wall_of_art_version = ${req.body.wall_of_art_version+1} ;`
         await client.query(insertWallOfArtSql)
         await client.query('COMMIT')
         res.send({
@@ -138,10 +168,10 @@ if (!isDev && cluster.isMaster) {
         })
       } catch (e) {
         await client.query('ROLLBACK')
+        throw e
         res.send({
           status:'ERROR'
         })
-        throw e
       } finally {
         client.release()
       }
@@ -173,18 +203,35 @@ if (!isDev && cluster.isMaster) {
         })
       } catch (e) {
         await client.query('ROLLBACK')
-        res.send({
-          status:'ERROR'
-        })
+        console.log(e.code);
         throw e
+        if(e.code=='23505'){
+          res.send({
+            status:'ERROR',
+            errorMsg:'Username already exists'
+          })
+        }else{
+          res.send({
+            status:'ERROR',
+            errorMsg:'There was an error'
+          })
+        }
       } finally {
         client.release()
       }
     })().catch(e => {
       console.error(e.stack);
-      res.send({
-        status:'ERROR'
-      });
+      if(e.code=='23505'){
+        res.send({
+          status:'ERROR',
+          errorMsg:'Username already exists'
+        })
+      }else{
+        res.send({
+          status:'ERROR',
+          errorMsg:'There was an error'
+        })
+      }
     });
   });
 
