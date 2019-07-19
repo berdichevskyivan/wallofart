@@ -297,7 +297,7 @@ class App extends Component {
   }
 
   render(){
-    console.log(localStorage.getItem('drawingsMadeByUser'));
+
     if(localStorage.getItem('drawingsMadeByUser') > 0){
       if( ( localStorage.getItem('timer') - new Date().getTime() ) < 0 ){
         localStorage.setItem('drawingsMadeByUser',0);
@@ -340,8 +340,6 @@ class App extends Component {
     let grid = this.state.allCanvasesLoaded ?
                this.createGrid() :
                null ;
-
-    console.log("Executing render()");
 
     return (
       <div className="App">
