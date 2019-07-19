@@ -60,11 +60,15 @@ class LoginPage extends React.Component {
     var username = this.state.username;
     var password = this.state.password;
     if(username=='' || password==''){
-      alert('Please fill in both fields');
+      this.setState({
+        loginPerformed:true,
+        errorAtLogin:true,
+        responseMessage:'Please fill in both fields'
+      });
       return;
     }
     this.toggleButton();
-    axios.post('http://localhost:5000/login',{
+    axios.post('http://157.230.134.30:5000/login',{
       username:username,
       password:password
     }).then((res)=>{

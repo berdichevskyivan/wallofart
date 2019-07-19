@@ -28,7 +28,7 @@ if (!isDev && cluster.isMaster) {
     user:'postgres',
     host:'localhost',
     database:'wall_of_art',
-    password:'dgtic123',
+    password:'rakmodar',
     port:5432
   });
 
@@ -37,7 +37,7 @@ if (!isDev && cluster.isMaster) {
 
   //Remember to now Allow everyone (*) , just the React instance
   app.use(function(req, res, next) {
-    res.header("Access-Control-Allow-Origin", "http://localhost");
+    res.header("Access-Control-Allow-Origin", "http://earthswallofart");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
   });
@@ -225,6 +225,90 @@ if (!isDev && cluster.isMaster) {
         res.send({
           status:'ERROR',
           errorMsg:'Username already exists'
+        })
+      }else{
+        res.send({
+          status:'ERROR',
+          errorMsg:'There was an error'
+        })
+      }
+    });
+  });
+
+  app.post('/upvoteDrawing',function(req, res){
+    res.set('Content-Type', 'application/json');
+    //console.log(req.body.base64img);
+    (async () => {
+      // note: we don't try/catch this because if connecting throws an exception
+      // we don't need to dispose of the client (it will be undefined)
+      const client = await pool.connect()
+
+      try {
+        await client.query('BEGIN')
+        const upvoteSQL = `update users_drawings set upvotes=upvotes+1 where id=${req.body.imgid} ;`
+        +`INSERT INTO users_votes VALUES (${req.body.userid},${req.body.imgid},'U');`
+        await client.query(upvoteSQL)
+        await client.query('COMMIT')
+        res.send({
+          status:'OK'
+        })
+      } catch (e) {
+        await client.query('ROLLBACK')
+        throw e
+        res.send({
+          status:'ERROR'
+        })
+      } finally {
+        client.release()
+      }
+    })().catch(e => {
+      console.error(e.stack);
+      if(e.code=='23505'){
+        res.send({
+          status:'ERROR',
+          errorMsg:'Already voted'
+        })
+      }else{
+        res.send({
+          status:'ERROR',
+          errorMsg:'There was an error'
+        })
+      }
+    });
+  });
+
+  app.post('/downvoteDrawing',function(req, res){
+    res.set('Content-Type', 'application/json');
+    //console.log(req.body.base64img);
+    (async () => {
+      // note: we don't try/catch this because if connecting throws an exception
+      // we don't need to dispose of the client (it will be undefined)
+      const client = await pool.connect()
+
+      try {
+        await client.query('BEGIN')
+        const downvoteSQL = `update users_drawings set downvotes=downvotes+1 where id=${req.body.imgid} ;`
+        +`INSERT INTO users_votes VALUES (${req.body.userid},${req.body.imgid},'D');`
+        await client.query(downvoteSQL)
+        await client.query('COMMIT')
+        res.send({
+          status:'OK'
+        })
+      } catch (e) {
+        await client.query('ROLLBACK')
+        throw e
+        res.send({
+          status:'ERROR'
+        })
+      } finally {
+        client.release()
+      }
+    })().catch(e => {
+      console.error(e.stack);
+      if(e.code=='23505'){
+        res.send({
+          status:'ERROR',
+          errorMsg:'Already voted'
         })
       }else{
         res.send({

@@ -61,14 +61,15 @@ class App extends Component {
     this.toggleParagraphs();
     document.getElementsByClassName('wallWrapper')[0].style.border = "none";
     document.getElementsByClassName('wallWrapper')[0].style.boxShadow = "none";
+    document.getElementsByClassName('navbar')[0].style.display = "none";
 
     let wallOfArtVersion = this.state.wallOfArtVersion;
 
-    domtoimage.toPng(node,{ style:{ "marginTop":"10px" } })
+    domtoimage.toPng(node,{ style:{ "marginTop":"20px" } })
                .then(function(dataUrl){
                  console.log(dataUrl);
                  let wall_of_art_version = wallOfArtVersion;
-                 axios.post('http://localhost:5000/saveWallOfArt',{ wall_of_art_version:wall_of_art_version, base64img:dataUrl })
+                 axios.post('http://157.230.134.30:5000/saveWallOfArt',{ wall_of_art_version:wall_of_art_version, base64img:dataUrl })
                       .then(res=>{
                         console.log(res.data);
                         if(res.data.status==='OK'){
@@ -82,7 +83,8 @@ class App extends Component {
                       })
                }).then(()=>{this.toggleParagraphs();
                             document.getElementsByClassName('wallWrapper')[0].style.border = "3px solid black";
-                            document.getElementsByClassName('wallWrapper')[0].style.boxShadow = "8px 8px #dee2e6";});
+                            document.getElementsByClassName('wallWrapper')[0].style.boxShadow = "8px 8px #dee2e6";
+                            document.getElementsByClassName('navbar')[0].style.display = "flex";});
   }
 
   downloadWallAsImg(){
@@ -91,13 +93,15 @@ class App extends Component {
     this.toggleParagraphs();
     document.getElementsByClassName('wallWrapper')[0].style.border = "none";
     document.getElementsByClassName('wallWrapper')[0].style.boxShadow = "none";
+    document.getElementsByClassName('navbar')[0].style.display = "none";
 
-    domtoimage.toPng(node,{ style:{ "marginTop":"10px" } })
+    domtoimage.toPng(node,{ style:{ "marginTop":"20px" } })
                .then(function(dataUrl){
                  download(dataUrl, 'wallofart.png');
                }).then(()=>{this.toggleParagraphs();
                             document.getElementsByClassName('wallWrapper')[0].style.border = "3px solid black";
                             document.getElementsByClassName('wallWrapper')[0].style.boxShadow = "8px 8px #dee2e6";
+                            document.getElementsByClassName('navbar')[0].style.display = "flex";
                           });
   }
 
@@ -199,7 +203,7 @@ class App extends Component {
   componentDidMount(){
     console.log('Executing componentDidMount()');
 
-    axios.get('http://localhost:5000/getWallsHistory')
+    axios.get('http://157.230.134.30:5000/getWallsHistory')
          .then(res=>{
            this.setState({
              wallOfArtHistory:res.data
@@ -208,12 +212,12 @@ class App extends Component {
 
    let intervalId = this.setImmediateInterval(()=>{
 
-     axios.get('http://localhost:5000/getWallVersion')
+     axios.get('http://157.230.134.30:5000/getWallVersion')
           .then(res=>{
             this.setState({
               wallOfArtVersion:res.data[0].wall_of_art_version
             },()=>{
-              axios.post('http://localhost:5000/getCanvases',{wallofartversion:this.state.wallOfArtVersion == null ? 1 : this.state.wallOfArtVersion})
+              axios.post('http://157.230.134.30:5000/getCanvases',{wallofartversion:this.state.wallOfArtVersion == null ? 1 : this.state.wallOfArtVersion})
                    .then(res=>{
                      var data = res.data;
                      if(data.length==0){
@@ -317,13 +321,13 @@ class App extends Component {
 
     let paragraphs = this.state.showParagraphs ?
                      <div><p className="paragraph" id="wallTitle">Earth's Wall of Art</p>
-                     <p className="paragraph" style={{"fontSize":"20px"}}>Select an empty space from the wall and leave your mark</p>
+                     <p className="paragraph" style={{"fontSize":"20px",marginTop:'10px',marginBottom:'4px'}}>Select an empty space from the wall and leave your mark</p>
                      </div> :
                      null;
 
    let rules = this.state.userLoggedIn == false ?
                     <div>
-                    <p className="paragraph rules" style={{"fontSize":"20px"}}>You need to log in first!</p>
+                    <p className="paragraph rules" style={{"fontSize":"20px",marginBottom:'3px'}}>You need to log in first!</p>
                     </div> :
                     null;
 
