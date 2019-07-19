@@ -16,35 +16,48 @@ class DrawedCanvasModal extends React.Component {
   }
 
   upvoteDrawing(){
-    axios.post('http://157.230.134.30:5000/upvoteDrawing',{imgid:this.props.imgId, userid:this.props.imgUserId})
-         .then(res=>{
-           if(res.data.status=='OK'){
-             this.upvotes.current.innerHTML = parseInt(this.upvotes.current.innerHTML) + 1;
-           }else{
-             console.log(this.alertMsg);
-             this.alertMsg.current.innerHTML = res.data.errorMsg;
-             return;
-           }
-         })
-         .catch(err=>{
-           console.log(err);
-         })
+    if(localStorage.getItem('usernameid')===null){
+      this.alertMsg.current.innerHTML = 'Log in to vote';
+      return;
+    }else{
+      var loggedInUserId = localStorage.getItem('usernameid');
+      axios.post('http://157.230.134.30:5000/upvoteDrawing',{imgid:this.props.imgId, userid:loggedInUserId})
+           .then(res=>{
+             if(res.data.status=='OK'){
+               this.upvotes.current.innerHTML = parseInt(this.upvotes.current.innerHTML) + 1;
+             }else{
+               console.log(this.alertMsg);
+               this.alertMsg.current.innerHTML = res.data.errorMsg;
+               return;
+             }
+           })
+           .catch(err=>{
+             console.log(err);
+           })
+    }
+
   }
 
   downvoteDrawing(){
-    axios.post('http://157.230.134.30:5000/downvoteDrawing',{imgid:this.props.imgId, userid:this.props.imgUserId})
-          .then(res=>{
-            if(res.data.status=='OK'){
-              this.downvotes.current.innerHTML = parseInt(this.downvotes.current.innerHTML) + 1;
-            }else{
-              console.log(this.alertMsg);
-              this.alertMsg.current.innerHTML = res.data.errorMsg;
-              return;
-            }
-          })
-          .catch(err=>{
-            console.log(err);
-          })
+    if(localStorage.getItem('usernameid')===null){
+      this.alertMsg.current.innerHTML = 'Log in to vote';
+      return;
+    }else{
+      var loggedInUserId = localStorage.getItem('usernameid');
+      axios.post('http://157.230.134.30:5000/downvoteDrawing',{imgid:this.props.imgId, userid:loggedInUserId})
+            .then(res=>{
+              if(res.data.status=='OK'){
+                this.downvotes.current.innerHTML = parseInt(this.downvotes.current.innerHTML) + 1;
+              }else{
+                console.log(this.alertMsg);
+                this.alertMsg.current.innerHTML = res.data.errorMsg;
+                return;
+              }
+            })
+            .catch(err=>{
+              console.log(err);
+            })
+    }
   }
 
   render() {
