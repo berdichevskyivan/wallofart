@@ -16,11 +16,11 @@ class DrawedCanvasModal extends React.Component {
   }
 
   upvoteDrawing(){
-    if(localStorage.getItem('usernameid')===null){
+    if(localStorage.getItem('usernameId')===null){
       this.alertMsg.current.innerHTML = 'Log in to vote';
       return;
     }else{
-      var loggedInUserId = localStorage.getItem('usernameid');
+      var loggedInUserId = localStorage.getItem('usernameId');
       axios.post('http://157.230.134.30:5000/upvoteDrawing',{imgid:this.props.imgId, userid:loggedInUserId})
            .then(res=>{
              if(res.data.status=='OK'){
@@ -39,11 +39,11 @@ class DrawedCanvasModal extends React.Component {
   }
 
   downvoteDrawing(){
-    if(localStorage.getItem('usernameid')===null){
+    if(localStorage.getItem('usernameId')===null){
       this.alertMsg.current.innerHTML = 'Log in to vote';
       return;
     }else{
-      var loggedInUserId = localStorage.getItem('usernameid');
+      var loggedInUserId = localStorage.getItem('usernameId');
       axios.post('http://157.230.134.30:5000/downvoteDrawing',{imgid:this.props.imgId, userid:loggedInUserId})
             .then(res=>{
               if(res.data.status=='OK'){
