@@ -314,7 +314,7 @@ class App extends Component {
       if(parseInt(localStorage.getItem('drawingsMadeByUser'))>0){
         console.log('Starting timer');
         // User can draw again after 1 minute
-        localStorage.setItem('timer',new Date().getTime()+(1*60*1000));
+        localStorage.setItem('timer',new Date().getTime()+(20*1000));
       }
 
     };
