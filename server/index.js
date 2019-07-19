@@ -237,6 +237,7 @@ if (!isDev && cluster.isMaster) {
 
   app.post('/upvoteDrawing',function(req, res){
     res.set('Content-Type', 'application/json');
+    console.log(req.body);
     //console.log(req.body.base64img);
     (async () => {
       // note: we don't try/catch this because if connecting throws an exception
@@ -279,6 +280,7 @@ if (!isDev && cluster.isMaster) {
 
   app.post('/downvoteDrawing',function(req, res){
     res.set('Content-Type', 'application/json');
+    console.log(req.body);
     //console.log(req.body.base64img);
     (async () => {
       // note: we don't try/catch this because if connecting throws an exception
