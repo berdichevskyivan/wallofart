@@ -72,7 +72,10 @@ module.exports = function(proxy, allowedHost) {
       ignored: ignoredFiles(paths.appSrc),
     },
     // Enable HTTPS if the HTTPS environment variable is set to 'true'
-    https: protocol === 'https',
+    https: {
+	key: fs.readFileSync('/etc/letsencrypt/live/earthswallofart.com/privkey.pem'),
+	cert: fs.readFileSync('/etc/letsencrypt/live/earthswallofart.com/cert.pem')
+	},
     host,
     overlay: false,
     historyApiFallback: {

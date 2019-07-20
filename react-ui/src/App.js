@@ -201,7 +201,7 @@ class App extends Component {
 
   componentDidMount(){
 
-    axios.get('http://157.230.134.30:5000/getWallsHistory')
+    axios.get('/getWallsHistory')
          .then(res=>{
            this.setState({
              wallOfArtHistory:res.data
