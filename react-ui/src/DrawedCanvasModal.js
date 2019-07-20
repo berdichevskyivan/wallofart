@@ -88,7 +88,7 @@ class DrawedCanvasModal extends React.Component {
   //VALUES(${req.body.drawingid},${req.body.userid},'${req.body.textcontent}',${req.body.date});`;
   saveComment(){
     if(localStorage.getItem('usernameId')===null){
-      this.alertMsg.commentResponse.innerHTML = 'Log in to comment';
+      this.commentResponse.current.innerHTML = 'Log in to comment';
       return;
     }else{
       let commentText = this.refs.commentText.value;
