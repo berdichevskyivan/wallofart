@@ -87,3 +87,7 @@
   color: black;
   margin-top: 5px !important;
 }
+
+.modal-footer {
+  border-top: none;
+}

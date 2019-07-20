@@ -14,7 +14,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 class App extends Component {
 
   constructor(props){
-    console.log("Executing constructor()");
     super(props);
     this.state = {
       modalShow: false,
@@ -201,7 +200,6 @@ class App extends Component {
   }
 
   componentDidMount(){
-    console.log('Executing componentDidMount()');
 
     axios.get('http://157.230.134.30:5000/getWallsHistory')
          .then(res=>{
@@ -248,7 +246,7 @@ class App extends Component {
             });
           });
 
-   },3000);
+   },2500);
 
    this.setState({
      intervalId:intervalId
@@ -277,8 +275,6 @@ class App extends Component {
   }
 
   componentWillMount(){
-    console.log(localStorage.getItem('username'));
-    console.log(localStorage.getItem('usernameId'));
     if(localStorage.getItem('username') !== null && localStorage.getItem('usernameId') !== null){
       var username = localStorage.getItem('username');
       var id = localStorage.getItem('usernameId');
@@ -312,7 +308,6 @@ class App extends Component {
       var drawingsMadeByUser = localStorage.getItem('drawingsMadeByUser') == null ? 0 : parseInt(localStorage.getItem('drawingsMadeByUser'));
       localStorage.setItem('drawingsMadeByUser',drawingsMadeByUser+1);
       if(parseInt(localStorage.getItem('drawingsMadeByUser'))>0){
-        console.log('Starting timer');
         // User can draw again after 1 minute
         localStorage.setItem('timer',new Date().getTime()+(20*1000));
       }

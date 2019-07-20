@@ -140,7 +140,7 @@ class GridItemModal extends React.Component {
                                                lc : lc
                                              });
                                              lc.respondToSizeChange();
-                                           }} /> <Modal.Footer>
+                                           }} /> <Modal.Footer className="buttonsFromCanvas">
                                               { statusText }
                                              <Button onClick={this.saveImageFromCanvas} disabled={this.state.disableButton}>Save your art</Button>
                                              <Button onClick={this.props.onHide}>Close</Button>

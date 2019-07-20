@@ -8,11 +8,28 @@ class DrawedCanvasModal extends React.Component {
 
   constructor(...args){
     super(...args);
+    this.state = {
+      comments:[]
+    }
     this.upvotes = React.createRef();
     this.downvotes = React.createRef();
     this.alertMsg = React.createRef();
+    this.commentText = React.createRef();
+    this.commentResponse = React.createRef();
     this.upvoteDrawing = this.upvoteDrawing.bind(this);
     this.downvoteDrawing = this.downvoteDrawing.bind(this);
+    this.saveComment = this.saveComment.bind(this);
+    this.enteringModal = this.enteringModal.bind(this);
+  }
+
+  enteringModal(){
+    axios.post('http://157.230.134.30:5000/getDrawingComments',{drawingid:this.props.imgId})
+         .then(res=>{
+           this.setState({
+             comments:res.data
+           });
+         })
+         .catch(err=>console.log(err));
   }
 
   upvoteDrawing(){
@@ -59,6 +76,37 @@ class DrawedCanvasModal extends React.Component {
             })
     }
   }
+  //VALUES(${req.body.drawingid},${req.body.userid},'${req.body.textcontent}',${req.body.date});`;
+  saveComment(){
+    let commentText = this.refs.commentText.value;
+    if(commentText === ''){
+      this.commentResponse.current.innerHTML = 'Text is empty';
+      return;
+    }
+    let drawingid = this.props.imgId;
+    let userid = localStorage.getItem("usernameId");
+    let date = new Date().toJSON().slice(0,10).split('-').reverse().join('/');
+    axios.post('http://157.230.134.30:5000/saveComment',{ drawingid:drawingid,userid:userid,textcontent:commentText,date:date })
+         .then(res=>{
+           if(res.data.status==='OK'){
+             axios.post('http://157.230.134.30:5000/getDrawingComments',{drawingid:this.props.imgId})
+                  .then(res=>{
+                    console.log(res.data);
+                    this.refs.commentText.value = '';
+                    this.setState({
+                      comments:res.data
+                    });
+                  })
+                  .catch(err=>console.log(err));
+           }else{
+             this.commentResponse.current.innerHTML = res.data.errorMsg;
+           }
+         })
+         .catch(err=>{
+           console.log(err);
+           this.commentResponse.current.innerHTML = 'There was an error';
+         })
+  }
 
   render() {
 
@@ -68,6 +116,7 @@ class DrawedCanvasModal extends React.Component {
         {...this.props}
         size="lg"
         aria-labelledby="contained-modal-title-vcenter"
+        onEnter={this.enteringModal}
         centered
       >
         <Modal.Body className="bodyOfModal">
@@ -85,6 +134,24 @@ class DrawedCanvasModal extends React.Component {
            </div>
            <p style={{marginBottom:'0'}}>Made by {this.props.imgUsername}</p>
         </Modal.Footer>
+        <div className="row commentSection">
+          <textarea ref={'commentText'} placeholder="Write a comment..."></textarea>
+        </div>
+        <div className="row commentButton">
+          <p ref={this.commentResponse} style={{marginBottom:'0px',marginRight:'10px',alignSelf:'center'}}></p>
+          <Button onClick={this.saveComment}>Comment</Button>
+        </div>
+        <div className="row comments">
+          { this.state.comments.length > 0 ? this.state.comments.map((key,index)=>{
+            return <div className="singleComments">
+
+              <p style={{marginBottom:'0'}}>
+                <span className="commentText">{key.textcontent}</span> - <span className="commentUser">{key.username}</span> <span className="commentDate">{key.date}</span>
+              </p>
+
+            </div>
+          }) : null }
+        </div>
       </Modal>
     );
 

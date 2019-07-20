@@ -62,6 +62,16 @@ if (!isDev && cluster.isMaster) {
     });
   });
 
+  app.post('/getDrawingComments', function (req, res) {
+    let data = {};
+    res.set('Content-Type', 'application/json');
+    pool.query(`select a.*,b.username from drawing_comments a , users b where a.userid = b.id and a.drawingid=${req.body.drawingid}`, (err, dbres) => {
+      if (err) return;
+      data = dbres.rows;
+      res.send(data);
+    });
+  });
+
   app.get('/getWallsHistory', function (req, res) {
     let data = [];
     res.set('Content-Type', 'application/json');
@@ -109,6 +119,50 @@ if (!isDev && cluster.isMaster) {
       if (err) return;
       data = dbres.rows;
       res.send(data);
+    });
+  });
+
+  //Save image to database
+  app.post('/saveComment',function(req, res){
+    console.log('Saving comment to database...');
+    console.log(req.body);
+    res.set('Content-Type', 'application/json');
+    (async () => {
+      // note: we don't try/catch this because if connecting throws an exception
+      // we don't need to dispose of the client (it will be undefined)
+      const client = await pool.connect()
+
+      try {
+        await client.query('BEGIN')
+        const insertIntoComments = `INSERT INTO drawing_comments(drawingid,userid,textcontent,date) `
+                                 + `VALUES(${req.body.drawingid},${req.body.userid},'${req.body.textcontent}','${req.body.date}');`;
+        await client.query(insertIntoComments);
+        await client.query('COMMIT')
+        res.send({
+          status:'OK'
+        })
+      } catch (e) {
+        await client.query('ROLLBACK')
+        throw e
+        res.send({
+          status:'ERROR'
+        })
+      } finally {
+        client.release()
+      }
+    })().catch(e => {
+      console.error(e.stack);
+      if(e.code=='23505'){
+        res.send({
+          status:'ERROR',
+          errorMsg:'Already commented'
+        })
+      }else{
+        res.send({
+          status:'ERROR',
+          errorMsg:'There was an error'
+        })
+      }
     });
   });
 
