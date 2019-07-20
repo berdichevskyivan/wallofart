@@ -20,6 +20,15 @@ class DrawedCanvasModal extends React.Component {
     this.downvoteDrawing = this.downvoteDrawing.bind(this);
     this.saveComment = this.saveComment.bind(this);
     this.enteringModal = this.enteringModal.bind(this);
+    this.exitingModal = this.exitingModal.bind(this);
+  }
+
+  exitingModal(){
+    setTimeout(()=>{
+      this.setState({
+        comments:[]
+      });
+    },500)
   }
 
   enteringModal(){
@@ -117,6 +126,7 @@ class DrawedCanvasModal extends React.Component {
         size="lg"
         aria-labelledby="contained-modal-title-vcenter"
         onEnter={this.enteringModal}
+        onExit={this.exitingModal}
         centered
       >
         <Modal.Body className="bodyOfModal">
