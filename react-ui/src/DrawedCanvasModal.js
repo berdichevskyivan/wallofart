@@ -87,34 +87,39 @@ class DrawedCanvasModal extends React.Component {
   }
   //VALUES(${req.body.drawingid},${req.body.userid},'${req.body.textcontent}',${req.body.date});`;
   saveComment(){
-    let commentText = this.refs.commentText.value;
-    if(commentText === ''){
-      this.commentResponse.current.innerHTML = 'Text is empty';
+    if(localStorage.getItem('usernameId')===null){
+      this.alertMsg.commentResponse.innerHTML = 'Log in to comment';
       return;
+    }else{
+      let commentText = this.refs.commentText.value;
+      if(commentText === ''){
+        this.commentResponse.current.innerHTML = 'Text is empty';
+        return;
+      }
+      let drawingid = this.props.imgId;
+      let userid = localStorage.getItem("usernameId");
+      let date = new Date().toJSON().slice(0,10).split('-').reverse().join('/');
+      axios.post('http://157.230.134.30:5000/saveComment',{ drawingid:drawingid,userid:userid,textcontent:commentText,date:date })
+           .then(res=>{
+             if(res.data.status==='OK'){
+               axios.post('http://157.230.134.30:5000/getDrawingComments',{drawingid:this.props.imgId})
+                    .then(res=>{
+                      console.log(res.data);
+                      this.refs.commentText.value = '';
+                      this.setState({
+                        comments:res.data
+                      });
+                    })
+                    .catch(err=>console.log(err));
+             }else{
+               this.commentResponse.current.innerHTML = res.data.errorMsg;
+             }
+           })
+           .catch(err=>{
+             console.log(err);
+             this.commentResponse.current.innerHTML = 'There was an error';
+           })
     }
-    let drawingid = this.props.imgId;
-    let userid = localStorage.getItem("usernameId");
-    let date = new Date().toJSON().slice(0,10).split('-').reverse().join('/');
-    axios.post('http://157.230.134.30:5000/saveComment',{ drawingid:drawingid,userid:userid,textcontent:commentText,date:date })
-         .then(res=>{
-           if(res.data.status==='OK'){
-             axios.post('http://157.230.134.30:5000/getDrawingComments',{drawingid:this.props.imgId})
-                  .then(res=>{
-                    console.log(res.data);
-                    this.refs.commentText.value = '';
-                    this.setState({
-                      comments:res.data
-                    });
-                  })
-                  .catch(err=>console.log(err));
-           }else{
-             this.commentResponse.current.innerHTML = res.data.errorMsg;
-           }
-         })
-         .catch(err=>{
-           console.log(err);
-           this.commentResponse.current.innerHTML = 'There was an error';
-         })
   }
 
   render() {
