@@ -54,7 +54,7 @@ class GridItemModal extends React.Component {
       let usernameid = parseInt(localStorage.getItem('usernameId'));
       let wallofartversion = this.props.wallofartversion;
       console.log('version '+wallofartversion)
-      axios.post('http://157.230.134.30:5000/saveImageToDatabase',{ canvas_id:canvasIndex,
+      axios.post('/saveImageToDatabase',{ canvas_id:canvasIndex,
                                                                base64img:base64img,
                                                                usernameid:usernameid,
                                                                wallofartversion:wallofartversion})

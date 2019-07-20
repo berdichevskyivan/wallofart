@@ -69,7 +69,7 @@ class SignUpPage extends React.Component {
       return;
     }
     this.toggleButton();
-    axios.post('http://157.230.134.30:5000/saveUsernameAndPassword',{
+    axios.post('/saveUsernameAndPassword',{
       username:username,
       password:password
     }).then((res)=>{
@@ -81,7 +81,7 @@ class SignUpPage extends React.Component {
           errorAtSignUp:false,
           responseMessage:'You\'re ready for drawing!'
         });
-        axios.post('http://157.230.134.30:5000/getUsernameId',{
+        axios.post('/getUsernameId',{
           username:username
         }).then((res)=>{
           var data = res.data;

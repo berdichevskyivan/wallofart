@@ -32,7 +32,7 @@ class DrawedCanvasModal extends React.Component {
   }
 
   enteringModal(){
-    axios.post('http://157.230.134.30:5000/getDrawingComments',{drawingid:this.props.imgId})
+    axios.post('/getDrawingComments',{drawingid:this.props.imgId})
          .then(res=>{
            this.setState({
              comments:res.data
@@ -47,7 +47,7 @@ class DrawedCanvasModal extends React.Component {
       return;
     }else{
       var loggedInUserId = localStorage.getItem('usernameId');
-      axios.post('http://157.230.134.30:5000/upvoteDrawing',{imgid:this.props.imgId, userid:loggedInUserId})
+      axios.post('/upvoteDrawing',{imgid:this.props.imgId, userid:loggedInUserId})
            .then(res=>{
              if(res.data.status=='OK'){
                this.upvotes.current.innerHTML = parseInt(this.upvotes.current.innerHTML) + 1;
@@ -70,7 +70,7 @@ class DrawedCanvasModal extends React.Component {
       return;
     }else{
       var loggedInUserId = localStorage.getItem('usernameId');
-      axios.post('http://157.230.134.30:5000/downvoteDrawing',{imgid:this.props.imgId, userid:loggedInUserId})
+      axios.post('/downvoteDrawing',{imgid:this.props.imgId, userid:loggedInUserId})
             .then(res=>{
               if(res.data.status=='OK'){
                 this.downvotes.current.innerHTML = parseInt(this.downvotes.current.innerHTML) + 1;
@@ -99,10 +99,10 @@ class DrawedCanvasModal extends React.Component {
       let drawingid = this.props.imgId;
       let userid = localStorage.getItem("usernameId");
       let date = new Date().toJSON().slice(0,10).split('-').reverse().join('/');
-      axios.post('http://157.230.134.30:5000/saveComment',{ drawingid:drawingid,userid:userid,textcontent:commentText,date:date })
+      axios.post('/saveComment',{ drawingid:drawingid,userid:userid,textcontent:commentText,date:date })
            .then(res=>{
              if(res.data.status==='OK'){
-               axios.post('http://157.230.134.30:5000/getDrawingComments',{drawingid:this.props.imgId})
+               axios.post('/getDrawingComments',{drawingid:this.props.imgId})
                     .then(res=>{
                       console.log(res.data);
                       this.refs.commentText.value = '';

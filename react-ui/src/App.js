@@ -68,7 +68,7 @@ class App extends Component {
                .then(function(dataUrl){
                  console.log(dataUrl);
                  let wall_of_art_version = wallOfArtVersion;
-                 axios.post('http://157.230.134.30:5000/saveWallOfArt',{ wall_of_art_version:wall_of_art_version, base64img:dataUrl })
+                 axios.post('/saveWallOfArt',{ wall_of_art_version:wall_of_art_version, base64img:dataUrl })
                       .then(res=>{
                         console.log(res.data);
                         if(res.data.status==='OK'){
@@ -210,12 +210,12 @@ class App extends Component {
 
    let intervalId = this.setImmediateInterval(()=>{
 
-     axios.get('http://157.230.134.30:5000/getWallVersion')
+     axios.get('/getWallVersion')
           .then(res=>{
             this.setState({
               wallOfArtVersion:res.data[0].wall_of_art_version
             },()=>{
-              axios.post('http://157.230.134.30:5000/getCanvases',{wallofartversion:this.state.wallOfArtVersion == null ? 1 : this.state.wallOfArtVersion})
+              axios.post('/getCanvases',{wallofartversion:this.state.wallOfArtVersion == null ? 1 : this.state.wallOfArtVersion})
                    .then(res=>{
                      var data = res.data;
                      if(data.length==0){

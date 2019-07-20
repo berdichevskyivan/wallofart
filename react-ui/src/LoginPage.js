@@ -68,7 +68,7 @@ class LoginPage extends React.Component {
       return;
     }
     this.toggleButton();
-    axios.post('http://157.230.134.30:5000/login',{
+    axios.post('/login',{
       username:username,
       password:password
     }).then((res)=>{
