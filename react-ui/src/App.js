@@ -4,7 +4,7 @@ import GridItemModal from './GridItemModal';
 import HistoryModal from './HistoryModal';
 import DrawedCanvasModal from './DrawedCanvasModal';
 import MainNavbar from './MainNavbar'
-import { Button } from 'react-bootstrap';
+import { Button, Spinner } from 'react-bootstrap';
 import domtoimage from 'dom-to-image';
 import download from 'downloadjs';
 import './App.css';
@@ -316,7 +316,7 @@ class App extends Component {
 
     let paragraphs = this.state.showParagraphs ?
                      <div><p className="paragraph" id="wallTitle">Earth's Wall of Art</p>
-                     <p className="paragraph" style={{"fontSize":"20px",marginTop:'10px',marginBottom:'4px'}}>Select an empty space from the wall and leave your mark</p>
+                     <p className="paragraph" style={{"fontSize":"20px",marginTop:'10px',marginBottom:'4px'}}>Select an empty space from the wall and draw away</p>
                      </div> :
                      null;
 
@@ -334,7 +334,7 @@ class App extends Component {
 
     let grid = this.state.allCanvasesLoaded ?
                this.createGrid() :
-               null ;
+               <div className="wallSpinner"><Spinner animation="border" variant="primary" /></div> ;
 
     return (
       <div className="App">

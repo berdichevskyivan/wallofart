@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal , Button, Alert } from 'react-bootstrap';
+import { Modal , Button, Alert, Spinner } from 'react-bootstrap';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './DrawedCanvasModal.css';
@@ -9,8 +9,11 @@ class DrawedCanvasModal extends React.Component {
   constructor(...args){
     super(...args);
     this.state = {
-      comments:[]
+      comments:[],
+      commentsLoaded:false
     }
+    this.CancelToken = axios.CancelToken;
+    this.source = this.CancelToken.source();
     this.upvotes = React.createRef();
     this.downvotes = React.createRef();
     this.alertMsg = React.createRef();
@@ -26,16 +29,20 @@ class DrawedCanvasModal extends React.Component {
   exitingModal(){
     setTimeout(()=>{
       this.setState({
-        comments:[]
+        comments:[],
+        commentsLoaded:false
       });
-    },500)
+    },300)
+    this.source.cancel('request cancelled');
+    this.source = this.CancelToken.source();
   }
 
   enteringModal(){
-    axios.post('/getDrawingComments',{drawingid:this.props.imgId})
+    axios.post('/getDrawingComments',{drawingid:this.props.imgId},{cancelToken:this.source.token})
          .then(res=>{
            this.setState({
-             comments:res.data
+             comments:res.data,
+             commentsLoaded:true
            });
          })
          .catch(err=>console.log(err));
@@ -166,6 +173,7 @@ class DrawedCanvasModal extends React.Component {
 
             </div>
           }) : null }
+          { this.state.commentsLoaded ? null : <div className="spinnerRow"><Spinner animation="border" variant="primary" /></div> }
         </div>
       </Modal>
     );
